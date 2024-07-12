@@ -1,14 +1,14 @@
 import streamlit as st
 from docx import Document
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 import io
 
 # Function to extract text from PDF
 def extract_text_from_pdf(file):
-    reader = PdfFileReader(file)
+    reader = PdfReader(file)
     text = ""
-    for page in range(reader.getNumPages()):
-        text += reader.getPage(page).extract_text()
+    for page in reader.pages:
+        text += page.extract_text()
     return text
 
 # Function to extract text from DOCX
@@ -20,10 +20,11 @@ def extract_text_from_docx(file):
 def edit_cv(jd, cv_text):
     # Here, you can implement the logic to edit the CV based on the JD
     # For simplicity, this example just appends the JD to the CV
-    edited_cv = cv_text + "\n\n" + "JD:" + jd
+    edited_cv = cv_text + "\n\n" + "Edited based on the following Job Description:\n" + jd
     return edited_cv
 
-st.title("NaviAI AI CV")
+#st.title("CV Editor based on Job Description")
+
 
 # Input CV
 cv_option = st.radio("Input CV", ("Upload File", "Paste Text"))
