@@ -62,7 +62,7 @@ def xml_to_html(xml_content):
 
 # Streamlit app
 with st.sidebar:
-    st.header("Input Section")
+    st.header("V2.1")
     
     # Input CV
     cv_text = st.text_area("Paste CV text here")
