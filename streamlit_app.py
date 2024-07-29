@@ -48,21 +48,113 @@ def xml_to_html(xml_content):
     html_content = ''
 
     def wrap_with_div(tag):
-        children = tag.find_all(recursive=False)
-        if children:
-            inner_html = ''.join([wrap_with_div(child) for child in children])
-            return f'<div class="{tag.name}">{inner_html}</div>'
-        else:
-            return f'<div class="{tag.name}">{tag.text}</div>'
+        if tag.name is None:  # If it's a string/text node, return it as-is
+            return str(tag)
+        inner_html = ''.join([wrap_with_div(child) for child in tag.children])
+        return f'<div class="{tag.name}">{inner_html}</div>'
 
-    for tag in soup.find_all(recursive=False):
-        html_content += wrap_with_div(tag)
+    for tag in soup.contents:
+        if tag.name:  # Ensure it's an element and not a text node
+            html_content += wrap_with_div(tag)
 
-    return f"<html><body>{html_content}</body></html>"
+    head_content = '''
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: "Times New Roman", Times, serif;
+                margin: 20px;
+            }
+            .cv {
+                width: 100%;
+            }
+            .cvHeader {
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+            .cvHeader .firstName, .cvHeader .lastName {
+                display: inline-block;
+                text-align: center;
+            }
+            .cvHeader .contacts {
+                margin-top: 5px;
+            }
+            .cvHeader .contacts .li {
+                display: inline;
+                margin-right: 5px;
+            }
+            .cvHeader .separator {
+                display: inline;
+                margin: 0 5px;
+            }
+            .cvBody {
+                margin-top: 20px;
+            }
+            .section {
+                margin-bottom: 20px;
+            }
+            .sectionName {
+                font-size: 1.1em;
+                font-weight: bold;
+                text-transform: uppercase;
+                border-bottom: 1px solid #000;
+                margin-bottom: 10px;
+            }
+            .institution, .experience, .award, .skill {
+                margin-bottom: 10px;
+            }
+            .name, .organization, .project, .awardName, .skillName {
+                font-weight: bold;
+            }
+            .location, .date, .position, .title {
+                display: inline-block;
+                font-style: italic;
+                margin-right: 10px;
+            }
+            .location {
+                float: right;
+                text-align: right;
+            }
+            .date {
+                float: right;
+                text-align: right;
+                clear: both;
+            }
+            .bulletPoints .li {
+                margin-left: 20px;
+                clear: both;
+                position: relative;
+            }
+            .bulletPoints .li::before {
+                content: "•";
+                position: absolute;
+                left: -20px;
+                font-size: 1.2em;
+            }
+            .bulletPoints {
+                list-style-type: none;
+                padding-left: 20px;
+            }
+            .skillSets .li {
+                display: inline;
+            }
+            .skillSets .li:not(:last-child)::after {
+                content: ",";
+            }
+        </style>
+        <title>CV</title>
+      </head>
+    '''
+
+    return f"{head_content}<body contenteditable='true'>{html_content}</body></html>"
 
 # Streamlit app
 with st.sidebar:
-    st.header("V2.1")
+    st.header("V2.2")
     
     # Input CV
     cv_text = st.text_area("Paste CV text here")
@@ -75,16 +167,16 @@ if st.sidebar.button("Submit"):
         cv_data = get_edited_cv(cv_text, jd)
         if isinstance(cv_data, str):  # Check if the returned data is the XML string
             html_content = xml_to_html(cv_data)
-            st.subheader("Generated XML")
-            st.code(cv_data, language="xml")
-            st.subheader("Generated HTML")
-            st.code(html_content, language="html")
             st.download_button(
                 label="Download HTML",
                 data=html_content,
                 file_name="edited_cv.html",
                 mime="text/html"
             )
+            st.subheader("Generated XML")
+            st.code(cv_data, language="xml")
+            st.subheader("Generated HTML")
+            st.code(html_content, language="html")
         else:
             st.error("Failed to get edited CV from the API.")
             st.json(cv_data)  # Display the whole response for debugging
