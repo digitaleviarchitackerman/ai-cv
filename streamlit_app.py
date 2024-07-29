@@ -21,10 +21,9 @@ def get_edited_cv(cv_text, jd):
     # Define the data to be sent with the API request
     query = f"My CV: {cv_text} My JD: {jd}"
     data = {
-        "conversation_id": "123",
         "bot_id": "7396141067857002514",
-        "user": "123333333",
-        "query": f"Give me my xml CV knowing that:\n{query}",
+        "user": "aicv",
+        "query": f"{query}",
         "stream": False
     }
 
