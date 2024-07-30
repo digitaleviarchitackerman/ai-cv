@@ -22,7 +22,6 @@ def get_edited_cv(cv_text, jd):
     query = f"My CV: {cv_text} My JD: {jd}"
     data = {
         "bot_id": "7396141067857002514",
-        "user": "aicv",
         "query": f"{query}",
         "stream": False
     }
