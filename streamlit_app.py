@@ -73,38 +73,33 @@ def xml_to_html(xml_content):
             }
             .cvHeader {
                 text-align: center;
-                font-size: 1.2em;
-                font-weight: bold;
             }
             .cvHeader .firstName, .cvHeader .lastName {
                 display: inline-block;
                 text-align: center;
+                font-weight: bold;
+                font-size: 1.2em;
+                text-transform: uppercase;
             }
             .cvHeader .contacts {
-                margin-top: 5px;
             }
             .cvHeader .contacts .li {
                 display: inline;
-                margin-right: 5px;
             }
-            .cvHeader .separator {
-                display: inline;
-                margin: 0 5px;
+            .cvHeader .contacts .li:not(:last-child)::after {
+                content: " |";
             }
             .cvBody {
-                margin-top: 20px;
             }
             .section {
-                margin-bottom: 20px;
             }
             .sectionName {
                 font-size: 1.1em;
                 font-weight: bold;
                 text-transform: uppercase;
                 border-bottom: 1px solid #000;
-                margin-bottom: 10px;
             }
-            .institution, .experience, .award, .skill {
+            .institution, .experience, .award {
                 margin-bottom: 10px;
             }
             .name, .organization, .project, .awardName, .skillName {
@@ -113,7 +108,6 @@ def xml_to_html(xml_content):
             .location, .date, .position, .title {
                 display: inline-block;
                 font-style: italic;
-                margin-right: 10px;
             }
             .location {
                 float: right;
@@ -139,11 +133,23 @@ def xml_to_html(xml_content):
                 list-style-type: none;
                 padding-left: 20px;
             }
+            .skill {
+                display: block;
+            }
+            .skillName {
+                display: inline-block;
+            }
+            .skillSets {
+                display: inline;
+            }
             .skillSets .li {
                 display: inline;
             }
+            .skillSets::before {
+                content: ": ";
+            }
             .skillSets .li:not(:last-child)::after {
-                content: ",";
+                content: ", ";
             }
         </style>
         <title>CV</title>
@@ -154,7 +160,7 @@ def xml_to_html(xml_content):
 
 # Streamlit app
 with st.sidebar:
-    st.header("V2.2")
+    st.header("V2.3")
     
     # Input CV
     cv_text = st.text_area("Paste CV text here")
@@ -167,18 +173,16 @@ if st.sidebar.button("Submit"):
         cv_data = get_edited_cv(cv_text, jd)
         if isinstance(cv_data, str):  # Check if the returned data is the XML string
             html_content = xml_to_html(cv_data)
+            print("Generated XML:\n", cv_data)  # Print XML for debugging
+            print("Generated HTML:\n", html_content)  # Print HTML for debugging
             st.download_button(
-                label="Download HTML",
+                label="Download CV",
                 data=html_content,
-                file_name="edited_cv.html",
+                file_name="naviai-cv.html",
                 mime="text/html"
             )
-            st.subheader("Generated XML")
-            st.code(cv_data, language="xml")
-            st.subheader("Generated HTML")
-            st.code(html_content, language="html")
         else:
             st.error("Failed to get edited CV from the API.")
-            st.json(cv_data)  # Display the whole response for debugging
+            print("API Response:\n", cv_data)  # Print API response for debugging
     else:
         st.warning("Please provide both JD and CV.")
