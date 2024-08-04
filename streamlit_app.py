@@ -3,6 +3,7 @@ import requests
 import json
 import re
 from bs4 import BeautifulSoup
+from shared_state import increment_cv_count, get_cv_count
 
 # Function to call the API and get the edited CV in XML format
 def get_edited_cv(cv_text, jd):
@@ -159,19 +160,21 @@ def xml_to_html(xml_content):
     return f"{head_content}<body contenteditable='true'>{html_content}</body></html>"
 
 # Streamlit app
-with st.sidebar:
-    st.header("V2.3")
-    
-    # Input CV
-    cv_text = st.text_area("Paste CV text here")
+st.header("V2.3.4")
+st.sidebar.header("NaviAI CV")
+st.sidebar.text(f"Number of CVs generated: {get_cv_count()}")
 
-    # Input JD
-    jd = st.text_area("Paste JD text here")
+# Input CV
+cv_text = st.sidebar.text_area("Paste CV text here")
+
+# Input JD
+jd = st.sidebar.text_area("Paste JD text here")
 
 if st.sidebar.button("Submit"):
     if jd and cv_text:
         cv_data = get_edited_cv(cv_text, jd)
         if isinstance(cv_data, str):  # Check if the returned data is the XML string
+            increment_cv_count()
             html_content = xml_to_html(cv_data)
             print("Generated XML:\n", cv_data)  # Print XML for debugging
             print("Generated HTML:\n", html_content)  # Print HTML for debugging
@@ -181,6 +184,7 @@ if st.sidebar.button("Submit"):
                 file_name="naviai-cv.html",
                 mime="text/html"
             )
+            st.sidebar.text(f"Number of CVs generated: {get_cv_count()}")
         else:
             st.error("Failed to get edited CV from the API.")
             print("API Response:\n", cv_data)  # Print API response for debugging
