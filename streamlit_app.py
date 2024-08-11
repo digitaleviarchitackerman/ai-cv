@@ -3,7 +3,11 @@ import requests
 import json
 import re
 from bs4 import BeautifulSoup
-from shared_state import increment_cv_count, get_cv_count
+
+# Load secrets
+api_key = st.secrets["api_key"]
+bot_id = st.secrets["bot_id"]
+head_content = st.secrets["head_content"]["head_html"]
 
 # Function to call the API and get the edited CV in XML format
 def get_edited_cv(cv_text, jd):
@@ -12,7 +16,7 @@ def get_edited_cv(cv_text, jd):
 
     # Define the headers for the API request
     headers = {
-        "Authorization": "Bearer pat_tdxTFe1O5DrjQJsmO6gEuyKmxz8DzyvyIpAMA6faYmgDHMpaTGIXEVoZptMWC27M",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "Accept": "*/*",
         "Host": "api.coze.com",
@@ -22,7 +26,7 @@ def get_edited_cv(cv_text, jd):
     # Define the data to be sent with the API request
     query = f"My CV: {cv_text} My JD: {jd}"
     data = {
-        "bot_id": "7396141067857002514",
+        "bot_id": bot_id,
         "user": "naviai",
         "query": f"{query}",
         "stream": False
@@ -58,109 +62,10 @@ def xml_to_html(xml_content):
         if tag.name:  # Ensure it's an element and not a text node
             html_content += wrap_with_div(tag)
 
-    head_content = '''
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            body {
-                font-family: "Times New Roman", Times, serif;
-                margin: 20px;
-            }
-            .cv {
-                width: 100%;
-            }
-            .cvHeader {
-                text-align: center;
-            }
-            .cvHeader .firstName, .cvHeader .lastName {
-                display: inline-block;
-                text-align: center;
-                font-weight: bold;
-                font-size: 1.2em;
-                text-transform: uppercase;
-            }
-            .cvHeader .contacts {
-            }
-            .cvHeader .contacts .li {
-                display: inline;
-            }
-            .cvHeader .contacts .li:not(:last-child)::after {
-                content: " |";
-            }
-            .cvBody {
-            }
-            .section {
-            }
-            .sectionName {
-                font-size: 1.1em;
-                font-weight: bold;
-                text-transform: uppercase;
-                border-bottom: 1px solid #000;
-            }
-            .institution, .experience, .award {
-                margin-bottom: 10px;
-            }
-            .name, .organization, .project, .awardName, .skillName {
-                font-weight: bold;
-            }
-            .location, .date, .position, .title {
-                display: inline-block;
-                font-style: italic;
-            }
-            .location {
-                float: right;
-                text-align: right;
-            }
-            .date {
-                float: right;
-                text-align: right;
-                clear: both;
-            }
-            .bulletPoints .li {
-                margin-left: 20px;
-                clear: both;
-                position: relative;
-            }
-            .bulletPoints .li::before {
-                content: "•";
-                position: absolute;
-                left: -20px;
-                font-size: 1.2em;
-            }
-            .bulletPoints {
-                list-style-type: none;
-                padding-left: 20px;
-            }
-            .skill {
-                display: block;
-            }
-            .skillName {
-                display: inline-block;
-            }
-            .skillSets {
-                display: inline;
-            }
-            .skillSets .li {
-                display: inline;
-            }
-            .skillSets::before {
-                content: ": ";
-            }
-            .skillSets .li:not(:last-child)::after {
-                content: ", ";
-            }
-        </style>
-        <title>CV</title>
-      </head>
-    '''
-
     return f"{head_content}<body contenteditable='true'>{html_content}</body></html>"
 
 # Streamlit app
-st.header("V2.3.4")
+st.header("V2.4.0")
 st.sidebar.header("NaviAI CV")
 st.sidebar.text(f"Number of CVs generated: {get_cv_count()}")
 
