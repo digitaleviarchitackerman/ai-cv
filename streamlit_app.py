@@ -3,6 +3,7 @@ import requests
 import json
 import re
 from bs4 import BeautifulSoup
+from shared_state import increment_cv_count, get_cv_count  # Import shared state functions
 
 # Load secrets
 api_key = st.secrets["api_key"]
